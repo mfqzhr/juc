@@ -36,3 +36,40 @@
 - 区别:
   1. this.interrupted() : 测试当前的线程是否已经中断状态,执行后具有清除状态标志值为false的功能
   2. this.isTerrupted() : 测试线程Thread对象是否已经是中断状态,不清楚状态标志
+
+#### 暂停线程
+
+1. 暂停线程意味着此线程还可以恢复运行,在java多线程中,可以使用suspend()方法暂停线程,使用resume()方法来恢复线程的执行
+
+   ```java
+   	public static void main(String[] args) throws InterruptedException {
+   		MyThread thread = new MyThread();
+   		thread.start();
+   		Thread.sleep(5000);
+   		//A段
+   		thread.suspend();
+   		System.out.println("A=" + System.currentTimeMillis() + "i=" + thread.getI());
+   		Thread.sleep(5000);
+   		System.out.println("A=" + 	System.currentTimeMillis() + "i=" + thread.getI());
+   		//B段
+   		thread.resume();
+   		Thread.sleep(5000);
+   		//C段
+   		thread.suspend();
+   		System.out.println("B=" + System.currentTimeMillis() + "i=" + thread.getI());
+   		Thread.sleep(5000);
+   		System.out.println("B=" + System.currentTimeMillis() + "i=" + thread.getI());
+   
+   	}
+   //输出:
+   //A=1573134549054i=2515860505
+   //A=1573134554054i=2515860505
+   //B=1573134559064i=4864150954
+   //B=1573134564064i=4864150954
+   
+   ```
+
+2. suspend()方法与resume()方法的缺点-独占
+
+   
+
