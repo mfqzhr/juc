@@ -75,7 +75,7 @@
 
 
 
-### yield()方法:
+#### yield()方法:
 
 yield()方法的作用是放弃当前的cpu资源,让其他任务去占用cpu执行时间,放弃的时间不确定,有可能刚刚放弃,马上又获得cpu的时间片:
 
@@ -119,7 +119,7 @@ public class MyThread extends Thread{
 //用时: 277 毫秒
 ```
 
-### 线程的优先级:
+#### 线程的优先级:
 
 ​	在操作系统中,线程可以划分优先级,优先级较高的线程获得cpu资源多,也就是cpu优先执行优先级较高的线程对象中的人物,其实就是让高优先级的线程获得更多的cpu时间片.
 
@@ -152,4 +152,8 @@ public final static int MIN_PRIORITY = 1;
 public final static int NORM_PRIORITY = 5;
 public final static int MAX_PRIORITY = 10;
 ```
+
+#### 线程优先级的继承特性:
+
+​	在java中,线程的优先级具有继承性, 例如, A线程启动B线程,则B线程的优先级与A线程是一样的.
 
