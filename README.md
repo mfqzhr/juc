@@ -157,3 +157,39 @@ public final static int MAX_PRIORITY = 10;
 
 ​	在java中,线程的优先级具有继承性, 例如, A线程启动B线程,则B线程的优先级与A线程是一样的.
 
+```java
+public class MyThread1 extends Thread{
+	@Override
+	public void run() {
+		System.out.println("线程1的优先级: " + getPriority());
+		MyThread2 thread = new MyThread2();
+		thread.start();
+	}
+
+}
+
+public class MyThread2 extends Thread{
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		super.run();
+		System.out.println("线程2的优先级: " + getPriority());
+	}
+
+}
+
+public class Run {
+	public static void main(String[] args) {
+		Thread.currentThread().setPriority(6);
+		System.out.println("主线程的优先级: " + Thread.currentThread().getPriority());
+		MyThread1 thread = new MyThread1();
+		thread.start();
+	}
+
+}
+
+//主线程的优先级: 6
+//线程1的优先级: 6
+//线程2的优先级: 6
+```
+
