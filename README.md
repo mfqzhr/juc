@@ -79,3 +79,45 @@
 
 yield()方法的作用是放弃当前的cpu资源,让其他任务去占用cpu执行时间,放弃的时间不确定,有可能刚刚放弃,马上又获得cpu的时间片:
 
+
+
+```java
+public class MyThread extends Thread{
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		super.run();
+		long beginTime = System.currentTimeMillis();
+		int count = 0;
+		for (int i = 0; i < 500000; i++) {
+			//Thread.yield();
+			count = count + (i + 1);
+		}
+		long endTime = System.currentTimeMillis();
+		
+		System.out.println("用时: " + (endTime - beginTime) + " 毫秒");
+	}
+
+}
+//用时: 2 毫秒
+
+public class MyThread extends Thread{
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		super.run();
+		long beginTime = System.currentTimeMillis();
+		int count = 0;
+		for (int i = 0; i < 500000; i++) {
+			Thread.yield();
+			count = count + (i + 1);
+		}
+		long endTime = System.currentTimeMillis();
+		
+		System.out.println("用时: " + (endTime - beginTime) + " 毫秒");
+	}
+
+}
+//用时: 277 毫秒
+```
+
