@@ -488,7 +488,7 @@ public class Test2 {
 
 
 
-```
+```java
 public class Run {
 
 	public static void main(String[] args) {
@@ -505,6 +505,63 @@ public class Run {
 
 
 
+#### 将synchronized方法与对象作为锁
+
+```java
+	synchronized public void methodA() {
+		try {
+			System.out.println("begin methodA threadName=" + Thread.currentThread().getName());
+			Thread.sleep(5000);
+			System.out.println("end");
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+```
+
+如上面的代码所示,在methodA()方法前加入了synchronized进行同步处理,调用关键字synchronized声明的方法一定是排队进行运行的.另外,需要牢牢记住"共享"这两个字,只有共享资源的读写访问才需要同步化,如果不是共享资源,那么就没有同步的必要了.
 
 
- 		
+
+当两个线程访问同一个对象的两个同步的方法:
+
+```java
+public class MyObject {
+	synchronized public void methodA() {
+		try {
+			System.out.println("begin methodA threadName=" + Thread.currentThread().getName());
+			Thread.sleep(5000);
+			System.out.println("end");
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+	
+	synchronized public void methodB() {
+		try {
+			System.out.println("begin methodA threadName=" + Thread.currentThread().getName());
+			Thread.sleep(5000);
+			System.out.println("end");
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+
+}
+//运行如下:
+//begin methodA threadName=a
+//end
+//begin methodA threadName=b
+//end
+
+
+```
+
+​	结论:
+
+1. A线程先持有object对象的Lock锁,B线程可以以异步调用的方式调用object对象中的非synchronized类型的方法.
+2. A线程先持有object对象的Lock锁,B线程如果在这个时候调用object对象中的synchronized类型的方法,则需要等待,也就是同步.
+3. 在方法申明处添加synchronized并不是锁方法,而是锁当前类的对象.
+4. 在java中只有"将对象作为锁"这种说法,并没有"锁方法"这个说法.
+5. 在java语言中,"锁"就是"对象","对象"也可以映射成"锁",哪个线程拿到这个锁,哪个线程就可以执行这个对象中的synchronized同步方法.
+6. 如果在X对象中使用了synchronized关键字申明非静态方法,则X对象就被当做锁
