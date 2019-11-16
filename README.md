@@ -423,6 +423,71 @@ public class HasSelfPrivateNum {
 
 结论:	两个线程同时访问同一个对象中的同步方法时一定是线程安全的.
 
+#### 同步synchronized在字节码指令中的原理
+
+在方法总使用synchronized关键字实现同步的原因是使用了flag标记ACC_SYN_CHRONIZED. 当调用方法的时候,调用指令会检查方法的ACC_SYNCHRONIZED访问标志是否设置,如果设置了,执行线程先持有的同步锁,然后执行方法,最后在方法完成时释放锁.
+
+```java
+  public static synchronized void testMethod();
+    descriptor: ()V
+    flags: ACC_PUBLIC, ACC_STATIC, ACC_SYNCHRONIZED
+    Code:
+      stack=0, locals=0, args_size=0
+         0: return
+      LineNumberTable:
+        line 6: 0
+
+```
+
+​	在反编译的字节码指令中,对public synchronized void testmethod() 方法使用了flag标记 ACC_SYNCHRONIZED,说明此方法是同步的.
+
+​	如果使用synchronized代码块,则使用monitorenter和monitorexit指令进行同步处理, 测试代码如下:
 
 
-​	
+
+```java
+public class Test2 {
+	public void myMethod() {
+		synchronized (this) {
+			int age = 100;
+		}
+	}
+	
+	public static void main(String[] args) {
+		Test2 test = new Test2();
+		test.myMethod();
+	}
+
+}
+  
+  
+  public void myMethod();
+    descriptor: ()V
+    flags: ACC_PUBLIC
+    Code:
+      stack=2, locals=4, args_size=1
+         0: aload_0
+         1: dup
+         2: astore_1
+         3: monitorenter
+         4: bipush        100
+         6: istore_2
+         7: aload_1
+         8: monitorexit
+         9: goto          17
+        12: astore_3
+        13: aload_1
+        14: monitorexit
+        15: aload_3
+        16: athrow
+        
+  //字节码中使用monitorenter 和 monitorexit指令进行同步处理
+```
+
+#### 多个对象多个锁
+
+
+
+
+
+ 		
