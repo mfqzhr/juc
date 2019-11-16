@@ -241,4 +241,188 @@ public class Run {
 
 ​	非线程安全问题存在于实例变量中,对于方法内部的私有变量,则不存在非线程安全问题,结果是线程安全的.
 
+```java
+public class HasSelfPrivateNum {
+	public void addI(String username) {
+		try {
+			int num = 0;
+			if (username.equals("a")) {
+				num = 100;
+				System.out.println("a set over");
+				Thread.sleep(2000);
+
+			} else {
+				num = 200;
+				System.out.println("b set over");
+			}
+			System.out.println(username + " num= " + num);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+}
+
+
+public class ThreadA extends Thread {
+	private HasSelfPrivateNum hasSelfPrivateNum;
+
+	public ThreadA(HasSelfPrivateNum hasSelfPrivateNum) {
+		super();
+		this.hasSelfPrivateNum = hasSelfPrivateNum;
+	}
+	
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		super.run();
+		hasSelfPrivateNum.addI("a");
+	}
+
+}
+
+
+public class ThreadB extends Thread {
+	private HasSelfPrivateNum hasSelfPrivateNum;
+
+	public ThreadB(HasSelfPrivateNum hasSelfPrivateNum) {
+		super();
+		this.hasSelfPrivateNum = hasSelfPrivateNum;
+	}
+	
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		super.run();
+		hasSelfPrivateNum.addI("b");
+	}
+
+}
+
+public class Run {
+	public static void main(String[] args) {
+		HasSelfPrivateNum h = new HasSelfPrivateNum();
+		ThreadA a = new ThreadA(h);
+		a.start();
+		ThreadB b = new ThreadB(h);
+		b.start();
+	}
+
+}
+```
+
+
+
+#### 实例变量非线程安全问题与解决方案:
+
+​	如果多个线程共同访问一个对象中的实例变量,则有可能出现非线程安全的问题.
+
+​	用线程访问德 对象中如果有多个实例变量,则运行的结果可能出现交叉的情况.
+
+​	如果对象仅有一个实例变量,则有可能出现覆盖的情况.
+
+```java
+public class HasSelfPrivateNum {
+	private int num = 0;
+	public void addI(String username) {
+		try {
+			
+			if (username.equals("a")) {
+				num = 100;
+				System.out.println("a set over");
+				Thread.sleep(2000);
+
+			} else {
+				num = 200;
+				System.out.println("b set over");
+			}
+			System.out.println(username + " num= " + num);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+}
+
+
+public class ThreadA extends Thread {
+	private HasSelfPrivateNum hasSelfPrivateNum;
+
+	public ThreadA(HasSelfPrivateNum hasSelfPrivateNum) {
+		super();
+		this.hasSelfPrivateNum = hasSelfPrivateNum;
+	}
+	
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		super.run();
+		hasSelfPrivateNum.addI("a");
+	}
+
+}
+
+
+public class ThreadB extends Thread {
+	private HasSelfPrivateNum hasSelfPrivateNum;
+
+	public ThreadB(HasSelfPrivateNum hasSelfPrivateNum) {
+		super();
+		this.hasSelfPrivateNum = hasSelfPrivateNum;
+	}
+	
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		super.run();
+		hasSelfPrivateNum.addI("b");
+	}
+
+}
+
+public class Run {
+	public static void main(String[] args) {
+		HasSelfPrivateNum h = new HasSelfPrivateNum();
+		ThreadA a = new ThreadA(h);
+		a.start();
+		ThreadB b = new ThreadB(h);
+		b.start();
+	}
+
+}
+
+
+
+public class HasSelfPrivateNum {
+	private int num = 0; //线程不安全
+	synchronized public void addI(String username) {
+		//int num = 0;//线程安全
+		try {
+			if (username.equals("a")) {
+				System.out.println("a start");
+				num = 100;
+				System.out.println("a set over");
+				Thread.sleep(2000);
+
+			} else {
+				System.out.println("b start");
+				num = 200;
+				System.out.println("b set over");
+			}
+			System.out.println(username + " num= " + num);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+}
+```
+
+结论:	两个线程同时访问同一个对象中的同步方法时一定是线程安全的.
+
+
+
 ​	
