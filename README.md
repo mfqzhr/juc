@@ -597,3 +597,63 @@ public class Service {
 ```
 
 "可重入锁"是指自己可以再次获取自己的内部锁,例如,**一个线程获得了某个对象锁,此时这个对象锁还没有释放,当其再次想要获取这个对昂锁时还是可以获取的,如果不可重入锁,则方法service2()不会被调用,方法service3()更不会执行**
+
+#### 锁重入支持继承的环境
+
+所重入也支持父子类继承的环境.
+
+```java
+public class Sub extends Main{
+	synchronized public void operateISubMethod() {
+		try {
+			while (i > 0) {
+				i--;
+				System.out.println("Sub pring i=" + i);
+				Thread.sleep(100);
+				super.operateIMainMethod();
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+}
+
+public class Main {
+	public int i = 10;
+	
+	synchronized public void operateIMainMethod() {
+		try {
+			i--;
+			System.out.println("main pring i=" + i);
+			Thread.sleep(100);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+
+}
+
+//输出
+/**
+Sub pring i=9
+main pring i=8
+Sub pring i=7
+main pring i=6
+Sub pring i=5
+main pring i=4
+Sub pring i=3
+main pring i=2
+Sub pring i=1
+main pring i=0
+*/
+```
+
+
+
+#### 出现异常,锁自动释放
+
+当一个线程执行的代码出现异常时,其所持有的锁会自动释放.
+
+#### 重写方法不使用synchronized
+
+重写方法不适用synchronized关键字,即是非同步方法,使用后编程同步方法
