@@ -572,7 +572,7 @@ public class MyObject {
 5. 在java语言中,"锁"就是"对象","对象"也可以映射成"锁",哪个线程拿到这个锁,哪个线程就可以执行这个对象中的synchronized同步方法.
 6. 如果在X对象中使用了synchronized关键字申明非静态方法,则X对象就被当做锁
 
-### synchronized锁重入
+   #### synchronized锁重入
 
 关键字synchronized拥有重入锁的功能,即在使用synchronized时,当一个线程得到一个对象的锁后,再次请求对象锁时是可以得到该对象锁的,这也证明在一个synchronized方法/块的内部调用本类的其他synchronized方法/块时,是永远可以得到锁的.
 
@@ -657,3 +657,16 @@ main pring i=0
 #### 重写方法不使用synchronized
 
 重写方法不适用synchronized关键字,即是非同步方法,使用后编程同步方法
+
+#### synchronized同步代码块
+
+用关键字synchronized声明方法在某些情况下是有弊端的,例如,A线程调用同步方法执行一个长时间的任务,那么B线程等待的时间就比较长,这种情况可以使用synchronized同步语句块来解决,一提高运行效率.
+
+#### synchronized方法的弊端
+
+耗时
+
+#### 一半同步,一半异步
+
+在synchronized中就是同步执行,不在synchronized中就是异步执行
+
