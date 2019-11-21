@@ -572,5 +572,28 @@ public class MyObject {
 5. 在java语言中,"锁"就是"对象","对象"也可以映射成"锁",哪个线程拿到这个锁,哪个线程就可以执行这个对象中的synchronized同步方法.
 6. 如果在X对象中使用了synchronized关键字申明非静态方法,则X对象就被当做锁
 
-### 脏读
+### synchronized锁重入
 
+关键字synchronized拥有重入锁的功能,即在使用synchronized时,当一个线程得到一个对象的锁后,再次请求对象锁时是可以得到该对象锁的,这也证明在一个synchronized方法/块的内部调用本类的其他synchronized方法/块时,是永远可以得到锁的.
+
+```java
+public class Service {
+	synchronized public void service1() {
+		System.out.println("service1");
+		service2();
+	}
+	
+	synchronized public void service2() {
+		System.out.println("service2");
+		service3();
+	}
+	
+	synchronized public void service3() {
+		System.out.println("service3");
+	}
+
+}
+
+```
+
+"可重入锁"是指自己可以再次获取自己的内部锁,例如,**一个线程获得了某个对象锁,此时这个对象锁还没有释放,当其再次想要获取这个对昂锁时还是可以获取的,如果不可重入锁,则方法service2()不会被调用,方法service3()更不会执行**
