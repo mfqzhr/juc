@@ -687,3 +687,55 @@ main pring i=0
 	}
 ```
 
+
+
+#### 同步synchronized(this)代码块是锁定当前对象的
+
+和synchronized方法一样 synchronized(this)代码块也是锁定当前对象的.
+
+
+
+#### 将任意对象作为锁
+
+多个线程调用同一个对象中的不同名称的synchronized同步方法或者synchronized(this)同步代码块时,调用的效果是按顺序执行,即同步.
+
+synchronized同步方法或者synchronized(this)同步代码块分别有两种作用.
+
+- synchronized同步方法的作用
+  1. 对其他synchronized同步方法 或者synchronized(this)同步代码块调用呈同步效果.
+  2. 同一时间只有一个线程可以执行synchronized同步方法中的代码
+- synchronized同步代码块的作用
+  1. 对其他synchronized同步方法或者synchronized(this)代码块呈同步效果
+  2. 同一时间只有一个线程可以执行synchronized(this)同步代码块中的代码
+
+锁非this对象有一定的优点: 如果一个类中有很多个synchronized方法,则这时虽然能实现同步,但是影响运行效率,如果使用同步代码块锁非this对象,则synchronized(非this)代码块中的程序与同步方法是异步的,因为有两把锁,不与其他锁this同步方法争抢this锁,可以大大提高运行效率.
+
+
+
+#### 类Class单例性
+
+每一个 *.java文件对应Class类的实例都是一个,在内存中是单例的,测试代码如下
+
+```java
+	public static void main(String[] args) {
+		MyTest test1 = new MyTest();
+		MyTest test2 = new MyTest();
+		MyTest test3 = new MyTest();
+		MyTest test4 = new MyTest();
+		System.out.println(test1.getClass() == test2.getClass());
+		System.out.println(test2.getClass() == test3.getClass());
+		System.out.println(test3.getClass() == test4.getClass());
+		
+	}
+	
+```
+
+
+
+Class类用于描述类的基本信息司,包括有多少个字段,有多少个构造方法,有多少个普通方法等,为了减少对内存的高占用率,在内存中只需要存一份Class类对象就可以了,所以被设计是单例的.
+
+#### 静态同步synchronized方法与synchronized(class)代码块
+
+关键字synchronized还可以应用在static静态方法上,如果这样写,那是对当前的 *.java文件对应的Class类对象进行加锁, Class类的对象是单例的,更具体地说,在静态static方法上使用synchronized关键字声明同步方法时,使用当前静态方法所在类对应Class类的单例对象作为锁
+
+​    
