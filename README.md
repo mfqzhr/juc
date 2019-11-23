@@ -670,3 +670,20 @@ main pring i=0
 
 在synchronized中就是同步执行,不在synchronized中就是异步执行
 
+```java
+	public void doLongTimeTask() {
+		//异步执行
+		for (int i = 0; i < 100; i++) {
+			System.out.println("nosynchronized threadName=" + Thread.currentThread().getName() + "i=" + (i + 1));
+		}
+		System.out.println("");
+		//同步执行
+		synchronized (this) {
+			for (int i = 0; i < 100; i++) {
+				System.out.println("synchronized threadName=" + Thread.currentThread().getName() + "i=" + (i + 1));
+			}
+		}
+
+	}
+```
+
