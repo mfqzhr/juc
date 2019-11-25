@@ -738,4 +738,95 @@ Class类用于描述类的基本信息司,包括有多少个字段,有多少个�
 
 关键字synchronized还可以应用在static静态方法上,如果这样写,那是对当前的 *.java文件对应的Class类对象进行加锁, Class类的对象是单例的,更具体地说,在静态static方法上使用synchronized关键字声明同步方法时,使用当前静态方法所在类对应Class类的单例对象作为锁
 
-​    
+
+
+#### String常量池特性与同步相关的问题与解决方案
+
+jvm具有String常量池的功能
+
+```java
+public class Test {
+	public static void main(String[] args) {
+		String a = "a";
+		String b = "a";
+		System.out.println(a == b);
+	}
+}
+
+```
+
+   当将synchronized(String)同步块与String联合使用时，要注意常量池会带来一些意外.
+
+```java
+public class Service {
+	public static void print(String stringParam) {
+		// TODO Auto-generated method stub
+		synchronized (stringParam) {
+			while (true) {
+				System.out.println(Thread.currentThread().getName());
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+
+	}
+}
+
+public class ThreadA extends Thread{
+	private Service service;
+	public ThreadA(Service service) {
+		// TODO Auto-generated constructor stub
+		this.service = service;
+	}
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		super.run();
+		service.print("AA");
+	}
+}
+
+
+public class ThreadB extends Thread{
+	private Service service;
+	public ThreadB(Service service) {
+		// TODO Auto-generated constructor stub
+		this.service = service;
+	}
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		super.run();
+		service.print("AA");
+	}
+}
+
+
+public class Run {
+
+	public static void main(String[] args) {
+		Service service = new Service();
+		ThreadA a = new ThreadA(service);
+		a.start();
+		ThreadB b = new ThreadB(service);
+		b.start();
+	}
+	
+	
+}
+
+
+```
+
+执行结果都是Thread-0,出现这种结果是因为两个线程持有相同的锁,造成B贤臣不能执行.这就是String常量池所带来的问题.
+
+#### 多线程的死锁
+
+java多线程死锁是因为不同的线程都在等待根本不可能被释放的锁,从而导致所有的任务都无法继续完成.在多线程技术中, "死锁"是必须避免的,因为这会造成线程"假死".
+
+#### 内置类与静态内置类
+
