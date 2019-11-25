@@ -828,5 +828,47 @@ public class Run {
 
 java多线程死锁是因为不同的线程都在等待根本不可能被释放的锁,从而导致所有的任务都无法继续完成.在多线程技术中, "死锁"是必须避免的,因为这会造成线程"假死".
 
-#### 内置类与静态内置类
+#### 同步写法案例比较
 
+类对象应该指类的Class对象,也就是字节码对象可以通过Class.forName()/getclass()/.class来获取,当jvm加载一个类时就会为这个类创建一个Class对象;
+
+类的对象,通常就是指我们通过new这个类或者反射得到Class对象再调用newInstance()创建的对象,存在内存的堆中,也叫类的实例;
+
+```java
+public class MyService {
+	synchronized public static void testMethod1() {
+	
+	}
+	
+	public void testMethod2() {
+		synchronized(MyService.class) {
+		
+		}
+	}
+	
+	synchronized public void testMethod3() {
+		
+	}
+	
+	public void testMethod4() {
+		synchronized(this) {
+		
+		}
+	}
+	
+	public void testMethod5() {
+		synchronized("abc") {
+		
+		}
+	}
+
+}
+```
+
+上面的代码中出现了三种类型的锁对象:
+
+1. testMethod1() 和 testMethod2() 持有的锁是同一个,即MyService.java对应Class类的对象.
+2. testMethod3() 和 testMethod4()持有的锁是同一个,即MyService.java类的对象.
+3. testMethod5() 持有的锁是字符串abc
+
+说明testMethod1()和testMethod2()是同步关系, testMethod3()和testMethod4()是同步关系.
