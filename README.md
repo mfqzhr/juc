@@ -872,3 +872,141 @@ public class MyService {
 3. testMethod5() 持有的锁是字符串abc
 
 说明testMethod1()和testMethod2()是同步关系, testMethod3()和testMethod4()是同步关系.
+
+#### volatile关键字
+
+在java中,关键字volatile在使用上具有以下特性:
+
+1. 可见性: B线程能马上看到A线程更改的数据
+2. 原子性:
+
+#### 可见性测试
+
+```java
+public class PrintString {
+	private boolean isContinuePrint = true;
+	
+	public boolean isContinuePrint() {
+		return isContinuePrint;
+	}
+	
+	public void setContinuePrint(boolean isContinuePrint) {
+		this.isContinuePrint = isContinuePrint;
+	}
+	
+	public void printStringMethod() throws InterruptedException {
+		while (isContinuePrint) {
+			System.out.println("run printStringMethod threadName=" + Thread.currentThread().getName());
+			Thread.sleep(1000);
+		}
+	}
+
+}
+
+public class Run {
+	public static void main(String[] args) throws InterruptedException {
+		PrintString printString = new PrintString();
+		printString.printStringMethod();
+		System.out.println("我要停止它？ stopThread=" + Thread.currentThread().getName());
+		printString.setContinuePrint(false);
+	}
+
+}
+
+```
+
+程序运行后根本停不下来，主要是因为 main线程一直在处理while()循环,导致程序不能继续执行后面的代码.
+
+#### 使用多线程解决死循环
+
+```java
+public class PrintString implements Runnable{
+	private boolean isContinuePrint = true;
+	
+	public boolean isContinuePrint() {
+		return isContinuePrint;
+	}
+	
+	public void setContinuePrint(boolean isContinuePrint) {
+		this.isContinuePrint = isContinuePrint;
+	}
+	
+	public void printStringMethod() throws InterruptedException {
+		while (isContinuePrint) {
+			System.out.println("run printStringMethod threadName=" + Thread.currentThread().getName());
+			Thread.sleep(1000);
+		}
+	}
+
+	public void run() {
+		// TODO Auto-generated method stub
+		try {
+			printStringMethod();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+}
+
+
+public class Run {
+	public static void main(String[] args) throws InterruptedException {
+		PrintString printString = new PrintString();
+		new Thread(printString).start();
+		System.out.println("我要停止它？ stopThread=" + Thread.currentThread().getName());
+		printString.setContinuePrint(false);
+	}
+
+}
+
+```
+
+
+
+#### 使用volatile关键字解决多线程出现的死循环
+
+```java
+public class RunThread extends Thread{
+	volatile private boolean isRunning = true;
+	public boolean isRunning() {
+		return isRunning;
+	}
+	public void setRunning(boolean isRunning) {
+		this.isRunning = isRunning;
+	}
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		super.run();
+		System.out.println("进入run了");
+		while (isRunning) {
+			
+		}
+		System.out.println("线程被停止了");
+	}
+
+}
+
+
+public class Run {
+	public static void main(String[] args) throws InterruptedException {
+		/**
+		PrintString printString = new PrintString();
+		new Thread(printString).start();
+		System.out.println("我要停止它？ stopThread=" + Thread.currentThread().getName());
+		printString.setContinuePrint(false);
+		*/
+		RunThread runThread = new RunThread();
+		runThread.start();
+		Thread.sleep(1000);
+		runThread.setRunning(false);
+		System.out.println("已经赋值为false");
+	}
+
+}
+```
+
+
+
