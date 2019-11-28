@@ -1,6 +1,6 @@
 # 多线程的学习
 
-## 一. java多线程技能
+一. java多线程技能
 
 #### start()方法耗时的原因是执行了多个步骤:
 
@@ -1012,3 +1012,109 @@ public class Run {
 
 关键字synchronized可以使用多个线程访问同一个资源具有同步性,而且具有使线程工作内存中的私有变量与公共内存中的变量同步的特性,即可见性
 
+
+
+## 三.线程通信
+
+线程是操作系统中独立的个体,但这些个体如果不经过特殊的处理是不能成为一个整体的,线程间的通信是使这些独立的个体成为整数的必用方案之一,可以说,线程间进行任务的处理过程进行有效把控与部署.
+
+#### wait/notify机制
+
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+public class MyList {
+	volatile private List list = new ArrayList();
+	public void add() {
+		// TODO Auto-generated method stub
+		list.add("mfq");
+
+	}
+	public int size() {
+		return list.size();
+	}
+
+}
+
+public class ThreadA extends Thread{
+	private MyList list;
+	
+	public ThreadA(MyList list) {
+		// TODO Auto-generated constructor stub
+		this.list = list;
+		}
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		super.run();
+		for (int i = 0; i < 10; i++) {
+			list.add();
+			System.out.println("添加了" + (i + 1) + "个元素");
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+}
+
+public class ThreadB extends Thread{
+	private MyList list;
+	
+	public ThreadB(MyList list) {
+		// TODO Auto-generated constructor stub
+		this.list = list;
+		}
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		super.run();
+		try {
+			while (true) {
+				Thread.sleep(2000);
+				if (list.size() == 5) {
+					System.out.println("==5了,线程b要退出了!");
+					throw new InterruptedException();
+				}
+			}
+		} catch (InterruptedException e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+	}
+
+}
+
+public class Test {
+	public static void main(String[] args) {
+		MyList service = new MyList();
+		ThreadA a = new ThreadA(service);
+		a.setName("A");
+		a.start();
+		ThreadB b = new ThreadB(service);
+		b.setName("B");
+		b.start();
+	}
+
+}
+```
+
+虽然两个线程间实现了通信,但缺点是线程ThreadB.java不停的通过while语句轮询机制来查询一个条件,这样会浪费CPU资源.如果轮询的时间间隔很小,则更浪费CPU资源;如果轮询的时间间隔过大,则有可能取不到想要的数据.
+
+
+
+#### wait/noitify机制
+
+wait/notify机制:
+
+厨师和服务员的交互发生在菜品的传递台上,在这期间需考虑一下几个问题.
+
+1. 厨师做完一个菜的时间未定,所以厨师将菜品放到"菜品传递台"上的时间也未定.
+2. 服务员取到菜的时间取决于厨师,所以服务员就有等待状态
+3. 服务员如何取到菜呢,这取决于厨师,厨师将菜放在"菜品传递台"上,其实相当于一种通知,这时服务员才可以拿到菜并交给就餐者.
+
+在这个过程中出现了wait/notify机制.
