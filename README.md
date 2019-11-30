@@ -1174,3 +1174,80 @@ public class Test2 {
 ```
 
 线程不能永远的等待下去,那样程序就停滞不前,不能继续向下运行了,如何使呈wait状态的线程继续运行呢?答案就是使用notify()方法.
+
+#### 完整实现wait/notify机制
+
+```java
+public class MyThread1 extends Thread{
+
+	private Object lock;
+	public MyThread1(Object lock) {
+		// TODO Auto-generated constructor stub
+		this.lock = lock;
+	}
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		super.run();
+		synchronized (lock) {
+			System.out.println("start wait time=" + System.currentTimeMillis());
+			try {
+				lock.wait();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println("end wait time=" + System.currentTimeMillis());
+		}
+	}
+}
+
+
+public class MyThread2 extends Thread{
+
+	private Object lock;
+	public MyThread2(Object lock) {
+		// TODO Auto-generated constructor stub
+		this.lock = lock;
+	}
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		super.run();
+		synchronized (lock) {
+			System.out.println("start notify time=" + System.currentTimeMillis());
+			lock.notify();
+			System.out.println("end notify time=" + System.currentTimeMillis());
+		}
+	}
+}
+
+public class Test {
+	public static void main(String[] args) throws InterruptedException {
+		Object lock = new Object();
+		MyThread1 t1 = new MyThread1(lock);
+		t1.start();
+		Thread.sleep(3000);
+		MyThread2 t2 = new MyThread2(lock);
+		t2.start();
+		
+		
+	}
+
+}
+
+```
+
+运行如下
+
+```java
+start wait time=1575100711433
+start notify time=1575100714432
+end notify time=1575100714432
+end wait time=1575100714432
+```
+
+从程序运行结果来看,3s后线程被通知(notify)唤醒.
+
+#### 使用wait/notify机制实现list.size()等于5时的线程销毁
+
