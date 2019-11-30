@@ -1251,3 +1251,115 @@ end wait time=1575100714432
 
 #### 使用wait/notify机制实现list.size()等于5时的线程销毁
 
+```java
+public class MyList {
+	private static List list = new ArrayList();
+
+	public static void add() {
+		list.add("anyString");
+	}
+
+	public static int size() {
+		return list.size();
+	}
+}
+
+public class MyThread1 extends Thread{
+
+	private Object lock;
+	public MyThread1(Object lock) {
+		// TODO Auto-generated constructor stub
+		this.lock = lock;
+	}
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		super.run();
+		synchronized (lock) {
+			if (MyList.size() != 5) {
+				System.out.println("start wait time=" + System.currentTimeMillis());
+				try {
+					lock.wait();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				System.out.println("end wait time=" + System.currentTimeMillis());
+			}
+			
+		}
+	}
+}
+
+public class MyThread2 extends Thread{
+
+	private Object lock;
+	public MyThread2(Object lock) {
+		// TODO Auto-generated constructor stub
+		this.lock = lock;
+	}
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		super.run();
+		try {
+			synchronized (lock) {
+				for (int i = 0; i < 10; i++) {
+					MyList.add();
+					if (MyList.size() == 5) {
+						lock.notify();
+						System.out.println("已经发出通知!");
+					}
+					System.out.println("添加了" + (i + 1) + "个元素");
+					Thread.sleep(1000);
+				}
+				
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
+	}
+}
+
+
+public class Run {
+	public static void main(String[] args) {
+		try {
+			Object lock = new Object();
+			MyThread1 t1 = new MyThread1(lock);
+			t1.start();
+			Thread.sleep(50);
+			MyThread2 t2 = new MyThread2(lock);
+			t2.start();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+}
+/**
+start wait time=1575102821683
+添加了1个元素
+添加了2个元素
+添加了3个元素
+添加了4个元素
+已经发出通知!
+添加了5个元素
+添加了6个元素
+添加了7个元素
+添加了8个元素
+添加了9个元素
+添加了10个元素
+end wait time=1575102831740
+**/
+```
+
+日志信息wait end在最后输出,这说明notify()方法执行后并不立即释放锁.
+
+关键字synchronized可以将任何一个Object对象作为锁来看待,而java为每一个Object都实现了wait()和notify()方法,他们必须用在被synchronized同步的Object临界区内.通过调用wait()方法可以使处于临界区内的线程进入等待状态,同时释放被同步对象的锁.
+
+wait()方法可以使调用该方法的线程释放锁,然后从运行状态转换成wait状态,等待被唤醒.
+
+notify()方法按照执行wait()方法的顺序唤醒等待同一个锁的"一个线程"使其进入可运行状态.即notify()方法仅通知"一个"线程.
+
+notifyAll()方法执行后,会按照执行wait()方法相反的顺序依次唤醒全部的线程.
