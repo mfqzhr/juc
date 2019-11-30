@@ -1118,3 +1118,59 @@ wait/notify机制:
 3. 服务员如何取到菜呢,这取决于厨师,厨师将菜放在"菜品传递台"上,其实相当于一种通知,这时服务员才可以拿到菜并交给就餐者.
 
 在这个过程中出现了wait/notify机制.
+
+#### wait方法的基本使用
+
+wait方法的作用是是当前线程暂停运行,并释放锁.
+
+```java
+public class Test1 {
+	public static void main(String[] args) {
+		String newString = new String("");
+		try {
+			newString.wait();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+}
+
+```
+
+运行如下
+
+```java
+Exception in thread "main" java.lang.IllegalMonitorStateException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Object.wait(Object.java:502)
+	at com.mfq.n3_001_004.Test1.main(Test1.java:7)
+```
+
+出现异常的原因是没有对象监视器，即没有锁.
+
+```java
+public class Test2 {
+	public static void main(String[] args) {
+
+		try {
+			String newString = new String("");
+			System.out.println("syn上面");
+			synchronized (newString) {
+				System.out.println("syn第一行");
+				newString.wait();
+				System.out.println("wait下面的代码");
+			}
+			System.out.println("syn下面的代码");
+			
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+}
+```
+
+线程不能永远的等待下去,那样程序就停滞不前,不能继续向下运行了,如何使呈wait状态的线程继续运行呢?答案就是使用notify()方法.
