@@ -1,4 +1,4 @@
-## volatile
+#### volatile
 
 volitile并不能保证多个线程共同修改running变量时所带来的不一致问题,也就是volitile不能替代synchronized
 
@@ -37,6 +37,13 @@ public class T {
 
 
 
-## CAS(无锁优化 自旋)
+#### CAS(无锁优化 自旋)
 
 AtomicXXX类本身方法都是原子性的,但不能保证多个方法同时调用是原子性的
+
+#### LongAdder
+
+刚开始是0,如果有一千个线程,它会分段锁,分成四个,每一段向上递增,最后一加,返回总数
+
+#### lock
+
