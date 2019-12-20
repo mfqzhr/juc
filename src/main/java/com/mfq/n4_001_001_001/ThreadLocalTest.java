@@ -12,6 +12,7 @@ public class ThreadLocalTest {
 	//创建ThreadLocal的值
 	static ThreadLocal<String> localVariable = new ThreadLocal<>();
 	
+	
 	public static void main(String[] args) {
 		Thread threadOne = new Thread(() -> {
 			localVariable.set("threadOne local variable");

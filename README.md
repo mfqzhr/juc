@@ -1371,3 +1371,50 @@ notifyAll()方法执行后,会按照执行wait()方法相反的顺序依次唤�
 多线程访问同一个共享变量的时候特别容易出现并发问题,特别是在多个线程需要对一个共享变量进行写入时.为了保证安全,一般使用者在访问共享变量的时候需要进行适当的同步.
 
 ThreadLocal是jdk包提供的,它提供了线程本地变量,也就是如果你创建一个ThreadLocal变量,那么访问这个变量的每个线程都会有这个变量的一个本地副本.当多线程操作这个变量时,实际操作的是自己本地内存里面的变量,从而避免了线程安全问题.创建一个ThreadLocal变量后,每个线程都会赋值一个变量到自己的本地内存.
+
+```java
+
+public class ThreadLocalTest {
+	
+	//print函数
+	static void print(String str) {
+		//打印当前线程本地内存中的localVariable变量的值
+		System.out.println(str + " : " + localVariable.get());
+		//清除当前线程本地内存中的localVariable变量的值
+		localVariable.remove();
+	}
+	//创建ThreadLocal的值
+	static ThreadLocal<String> localVariable = new ThreadLocal<>();
+	
+	public static void main(String[] args) {
+		Thread threadOne = new Thread(() -> {
+			localVariable.set("threadOne local variable");
+			print("threadOne");
+			System.out.println("threadOne remove after" + ":" + localVariable.get());
+		});
+		
+		Thread threadTwo = new Thread(() -> {
+			localVariable.set("threadTwo local variable");
+			print("threadTwo");
+			System.out.println("threadTwo remove after" + ":" + localVariable.get());
+		});
+		threadOne.start();
+		threadTwo.start();
+	}
+	
+
+}
+
+```
+
+
+
+#### java中的CAS操做
+
+
+
+在java中,锁在并发处理中占据了一席之地,但是使用锁有一个不好的地方,就是当一个线程没有获取到锁的时候会被阻塞挂起,这会导致线程上下文切换和重新调度开销.
+
+CAS: 加入线程A使用CAS修改初始值为a的变量x,那么线程A会首先获取当前变量X的值,然后使用CAS操作常识修改x的值为b,如果使用CAS操作成功了,name程序运行一定是正确的吗?其实未必,这是因为有可能在线程A获取变量x的值a后,在执行CAS前,线程B使用CAS操作修改了变量X的值为b,然后又使用CAS操作修改了变量X的值为a.虽然线程A执行CAS时x的值是a,但是这个A已经不是线程A获取时的a了,这就是ABA问题.
+
+ABA问题的产生是因为变量的状态值产生了环形转换,就是变量的值可以从A到B,然后再从B到A.如果变量的值只能朝着一个方向转换,不如A到B,B到C,C到D不构成环路.就不会存在问题,JDK中的AtomicStampedReference类给每一个变量的状态值都配备了一个时间戳,从而避免了ABA问题的产生
